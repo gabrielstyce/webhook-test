@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Webhook Test</title>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"
+    integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+    crossorigin="anonymous"></script>
+  <script>
+    const socket = io('http://localhost:3000');
+    socket.on('connect', function () {
+      verifyLinkId();
+      console.log('Connected');
+      addMessage('Connected');
+      socket.emit('link', getPath(), response => {
+        response && response.linked && addMessage(`Request link: ${response.requestURI}`);
+      });
+    });
+
+    socket.on('events', function (data) {
+      console.log('event', data);
+      addMessage('Event received!');
+      addMessage(JSON.stringify(data));
+    });
+
+    socket.on('exception', function (data) {
+      console.log('exception', data);
+      addMessage('Error occur!');
+    });
+
+    socket.on('disconnect', function () {
+      addMessage('Disconnected')
+    });
+
+    function getMessageElement() {
+      return document.getElementById('messages');
+    }
+
+    function addMessage(msg) {
+      let p = document.createElement('p');
+      p.innerText = msg;
+      getMessageElement().appendChild(p)
+    }
+
+    function getPath() {
+      return window.location.pathname.split('/')[1];
+    }
+
+    function generateLinkId() {
+      let newLinkId = crypto.randomUUID();
+      let nextURL = window.location + newLinkId;
+      window.history.replaceState(null, 'Webhook Test', nextURL);
+      return newLinkId;
+    }
+
+    function getLinkId() {
+      let path = getPath();
+
+      if (!path) {
+        return generateLinkId();
+      }
+
+      return path;
+    }
+
+    function verifyLinkId() {
+      var pathId = getLinkId();
+      addMessage(`Session ID: ${pathId}`);
+    }
+
+  </script>
+</head>
+
+<body>
+  <span id="messages"></span>
+</body>
+
+</html>
