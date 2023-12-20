@@ -7,7 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { getUrlApi } from 'src/main';
+import { config } from '../config';
 
 @WebSocketGateway({
   cors: {
@@ -29,7 +29,7 @@ export class EventsGateway {
     await socket.join(linkId);
     return Promise.resolve({
       linked: true,
-      requestURI: `${getUrlApi()}/${linkId}`
+      requestURI: `${config.HOST}/${linkId}`
     });
   }
 }
